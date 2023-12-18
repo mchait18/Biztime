@@ -5,7 +5,7 @@ const db = require("../db");
 
 router.get('/', async (req, res, next) => {
     try {
-        const results = await db.query('SELECT * FROM companies');
+        const results = await db.query('SELECT code, name FROM companies ORDER BY name');
         return res.json({ companies: results.rows })
     }
     catch (e) {
