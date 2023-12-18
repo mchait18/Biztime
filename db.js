@@ -6,10 +6,10 @@ let DB_URI;
 
 // If we're running in test "mode", use our test db
 // Make sure to create both databases!
-if (process.env.NODE_ENV === "test") {
-    DB_URI = "postgresql://postgres:myPassword@localhost:5432/biztime_test";
+if (process.env.NODE_ENV === "test") {    
+    DB_URI = "postgresql:///biztime_test";
 } else {
-    DB_URI = "postgresql://postgres:myPassword@localhost:5432/biztime";
+       DB_URI = "postgresql:///biztime";
 }
 
 let db = new Client({
