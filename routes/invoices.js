@@ -41,7 +41,10 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     try {
         const { comp_code, amt } = req.body;
-        const results = await db.query('INSERT INTO invoices(comp_code, amt) VALUES($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date', [comp_code, amt])
+        const results = await db.query(`INSERT INTO invoices(comp_code, amt) 
+        VALUES($1, $2) 
+        RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+            [comp_code, amt])
         return res.status(201).json({ invoice: results.rows[0] })
     } catch (e) {
         return next(e)
@@ -51,10 +54,25 @@ router.put('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const { amt, paid } = req.body;
-        const results = await db.query('UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, id])
-        if (results.rows.length === 0) {
-            throw new ExpressError(`Can't update invoice with id of ${id}`, 404)
+        let paidDate = null;
+        const chkResults = await db.query('SELECT paid_date FROM invoices WHERE id=$1', [id]);
+        if (chkResults.rows.length === 0) {
+            throw new ExpressError(`Can't find invoice with id of ${id}`, 404)
         }
+        let currPaidDate = chkResults.rows[0].paid_date
+        if (!currPaidDate && paid) {
+            paidDate = new Date()
+        }
+        else if (currPaidDate && !paid) {
+            paidDate = null
+        }
+        else paidDate = currPaidDate
+
+        const results = await db.query(`UPDATE invoices 
+        SET amt=$1, paid_date=$2, paid = $3 WHERE id=$4 
+        RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+            [amt, paidDate, paid, id])
+
         return res.send({ invoice: results.rows[0] })
     } catch (e) {
         return next(e)
