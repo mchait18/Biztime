@@ -1,6 +1,6 @@
 // Tell Node that we're in test "mode"
 process.env.NODE_ENV = 'test';
-
+const slugify = require("slugify")
 const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
@@ -51,10 +51,12 @@ describe("GET /companies/:code", () => {
 
 describe("POST /companies", () => {
     test("Creates a single company", async () => {
-        const res = await request(app).post('/companies').send({ code: 'ms', name: 'Microsoft', description: "PC software" });
+        const code = slugify('Microsoft', { lower: true })
+        const res = await request(app).post('/companies')
+            .send({ code: code, name: 'Microsoft', description: "PC software" });
         expect(res.statusCode).toBe(201);
         expect(res.body).toEqual({
-            company: { code: 'ms', name: 'Microsoft', description: 'PC software' }
+            company: { code: code, name: 'Microsoft', description: 'PC software' }
         })
     })
 })

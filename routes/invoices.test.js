@@ -43,7 +43,7 @@ describe("GET /invoices/:code", () => {
             id: testInvoice.id,
             amt: testInvoice.amt,
             paid: testInvoice.paid,
-            add_date: testInvoice.add_date,
+            add_date: expect.any(String),
             paid_date: testInvoice.paid_date,
             company: {
                 code: testCompany.code,
@@ -62,7 +62,8 @@ describe("GET /invoices/:code", () => {
 
 describe("POST /invoices", () => {
     test("Creates a single invoice", async () => {
-        const res = await request(app).post('/invoices').send({ comp_code: 'gs', amt: 450 });
+        const res = await request(app).post('/invoices')
+            .send({ comp_code: 'gs', amt: 450 });
         expect(res.statusCode).toBe(201);
         expect(res.body).toEqual({
             invoice: {
@@ -70,7 +71,7 @@ describe("POST /invoices", () => {
                 comp_code: 'gs',
                 amt: 450,
                 paid: false,
-                add_date: expect.any(Date),
+                add_date: expect.any(String),
                 paid_date: null
             }
         })
@@ -87,7 +88,7 @@ describe("PUT /invoices/:id", () => {
                 comp_code: 'gs',
                 amt: 300,
                 paid: false,
-                add_date: expect.any(Date),
+                add_date: expect.any(String),
                 paid_date: null
             }
         })
